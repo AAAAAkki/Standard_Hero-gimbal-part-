@@ -666,7 +666,7 @@ static void gimbal_init(gimbal_control_t *init)
 		//scope motor initialize
 		PID_init(&init->gimbal_scope_motor.scope_motor_pid,PID_POSITION, Scope_speed_pid, 5000, 0);
 		init->gimbal_scope_motor.scope_state=SCOPE_OFF;
-		gimbal_scope_cmd(SCOPE_OFF);
+		gimbal_scope_cmd(init,SCOPE_OFF);
     //Çå³ýËùÓÐPID
     gimbal_total_pid_clear(init);
 
@@ -1156,42 +1156,26 @@ void gimbal_scope_control(gimbal_control_t *scope_toggle)
 {
 		if(scope_toggle->gimbal_rc_ctrl->key.v  )	//switch button pressed, button not decided
 		{	
-//				if(scope_toggle->gimbal_scope_motor.scope_state==SCOPE_ON){		
-//						gimbal_scope_cmd(SCOPE_OFF);
-//						scope_toggle->gimbal_scope_motor.scope_state=SCOPE_OFF;
-//				}	
-//				else{
-//						gimbal_scope_cmd(SCOPE_ON);
-//						scope_toggle->gimbal_scope_motor.scope_state=SCOPE_ON;
-//				}
-				//toggle scope
+				  //toggle scope
 					scope_toggle->gimbal_scope_motor.scope_state=!scope_toggle->gimbal_scope_motor.scope_state;
-					gimbal_scope_cmd(scope_toggle->gimbal_scope_motor.scope_state);
+					gimbal_scope_cmd(scope_toggle, scope_toggle->gimbal_scope_motor.scope_state);
 		}
 		//position limit
 		scope_toggle->gimbal_scope_motor.speed_set=0;
 		scope_position_limit(scope_toggle);
 }
-void gimbal_scope_cmd(uint8_t scope_cmd)
+void gimbal_scope_cmd(gimbal_control_t *scope_toggle, uint8_t state)
 {
 		static uint8_t i=0;
-		if(scope_cmd==SCOPE_ON)
+		while(i<10)
 		{
-				//activate the motor
-				while(i<10)
-				{		
-						CAN_gimbal_scope_toggle(scope_support(i));
-						i++;
-				}
-		}
-		else
-		{
-				//activate the motor
-				while(i<10)
-				{
-						CAN_gimbal_scope_toggle(-scope_support(i));
-						i++;
-				}
+				if(state==SCOPE_ON)
+						scope_toggle->gimbal_scope_motor.current_set=scope_support(i);
+				else if(state==SCOPE_OFF)
+						scope_toggle->gimbal_scope_motor.current_set=-scope_support(i);
+				
+				CAN_gimbal_scope_toggle(scope_toggle->gimbal_scope_motor.current_set);
+				i++;
 		}
 }
 

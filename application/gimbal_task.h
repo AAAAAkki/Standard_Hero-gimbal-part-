@@ -337,7 +337,7 @@ extern void set_cali_gimbal_hook(const uint16_t yaw_offset, const uint16_t pitch
 
 void gimbal_scope_control(gimbal_control_t *scope_toggle);
 
-void gimbal_scope_cmd(uint8_t scope_cmd);
+void gimbal_scope_cmd(gimbal_control_t *scope_toggle, uint8_t state);
 
 void scope_position_limit(gimbal_control_t *scope);
 

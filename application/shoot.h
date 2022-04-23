@@ -133,7 +133,7 @@ typedef struct
     uint16_t heat_limit;
     uint16_t heat;
 		
-		uint8_t Pwm_L1;
+		uint8_t Pwm_L1;		//laser steering pwm
 		uint8_t Pwm_GB;
 } shoot_control_t;
 
